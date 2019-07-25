@@ -5,7 +5,7 @@
 Created on Mon Jun 17 14:46:26 2019
 
 @author: jasonbrant
-
+Run filter_fasta.py -h for help. 
 Use this to filter a fasta alignment file for use with methylmapper and Rhonda's R clustering scripts. 
 This will read an alignment fasta, determine the reference length, and the max length of the alignments. 
 This will then write out a new alignment fasta of those aligned reads that meet user defined length paramters.
