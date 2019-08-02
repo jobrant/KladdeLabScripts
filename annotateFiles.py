@@ -28,7 +28,7 @@ def processFiles(dir_name, mode, prefix):
     function docstring
     '''
     outfiles = []
-    for filename in os.listdir(dir_name):
+    for filename in os.listdir():
         if mode == 'atacseq':
             if filename.startswith(prefix) and filename.endswith('xlsx'):
                 xlsx = pd.ExcelFile(filename)
@@ -153,6 +153,8 @@ if __name__ == '__main__':
     else:
         prefix = args.file_prefix
 
+    os.chdir(args.dir_name)
     outfiles = processFiles(args.dir_name, args.mode, prefix)
     annoFiles = submitHomer(outfiles, args.mode)
     mergeFiles(annoFiles, args.mode)
+
