@@ -24,6 +24,9 @@ from subprocess import run
 #     run = subprocess.call
 
 def processFiles(dir_name, file_prefix):
+    '''
+    function docstring
+    '''
     outfiles = []
     for filename in os.listdir(dir_name):
         if filename.startswith(file_prefix) and filename.endswith("xlsx"):
@@ -93,13 +96,21 @@ def mergeFiles(annoFiles):
         combined2.to_excel(writer, sheet_name="Genes-" + str(baseNames[2]), index=False)
         fout.close()
 
-parser = argparse.ArgumentParser(description = "Annotation testing")
-parser.add_argument("dir_name", help = "Directory containing the files")
-parser.add_argument("file_prefix", help = "Filename prefix")
+parser = argparse.ArgumentParser(description = "To Run, call this program and give the directory containing the input "
+                                               "files and the prefix of the input file names as arguments."
+                                               "This script will annotate the ATAC-Seq differential analysis "
+                                               "output files of dasa (part of the atacseq pipeline). These will be "
+                                               "in excel (.xlsx) format and have two spreadsheets per workbook. "
+                                               " This will format the Excel files and submit them to HOMER for "
+                                               "annotation. It then combines the annotated files with the original data "
+                                               "(i.e. peak data), and outputs an excel workbook with a sheet for each "
+                                               "contrast.")
+
+parser.add_argument("dir_name", help = "Directory containing the input excel (.xlsx) files")
+parser.add_argument("file_prefix", help = "Filename prefix (e.g. for M-Series data, use M ")
 
 if __name__ == "__main__":
     args = parser.parse_args()
     outfiles = processFiles(args.dir_name, args.file_prefix)
     annoFiles = submitHomer(outfiles)
     mergeFiles(annoFiles)
-
