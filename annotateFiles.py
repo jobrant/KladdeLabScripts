@@ -28,10 +28,10 @@ def processFiles(dir_name, mode, prefix):
     function docstring
     '''
     outfiles = []
-    for filename in os.listdir(dir_name):
+    for filename in os.listdir():
         if mode == 'atacseq':
             if filename.startswith(prefix) and filename.endswith('xlsx'):
-                xlsx = pd.ExcelFile(dir_name +'/' + filename)
+                xlsx = pd.ExcelFile(filename)
                 sheet_names = xlsx.sheet_names
                 temp1 = xlsx.parse(sheet_names[0])
                 temp2 = xlsx.parse(sheet_names[1])
@@ -43,8 +43,8 @@ def processFiles(dir_name, mode, prefix):
                 temp2['Unique_ID'] = temp2['Chrom'] + '.' + temp2['Start'].astype(str)
                 header = ['Unique_ID', 'Chrom', 'Start', 'End', 'Strand', 'Gene', 'ID', 'Accession', 'Class', 'ExNum',
                           'log2(FC)']
-                outfile1 = dir_name + '/' + os.path.splitext(filename)[0] + sheet_names[0] + '.tsv'
-                outfile2 = dir_name + '/' + os.path.splitext(filename)[0] + sheet_names[1] + '.tsv'
+                outfile1 = os.path.splitext(filename)[0] + sheet_names[0] + '.tsv'
+                outfile2 = os.path.splitext(filename)[0] + sheet_names[1] + '.tsv'
                 outfiles.append(outfile1)
                 outfiles.append(outfile2)
                 outfile1 = open(outfile1, 'w+')
@@ -54,16 +54,15 @@ def processFiles(dir_name, mode, prefix):
                 outfile1.close()
                 outfile2.close()
         if mode == 'metilene':
-            if filename.startswith(tuple(prefix)):
-                xlsx = pd.ExcelFile(dir_name + '/' + filename)
-                #sheet_name = xlsx.sheet_names
+            if filename.startswith(tuple(prefix)) and filename.endswith('.xlsx'):
+                xlsx = pd.ExcelFile(filename)
                 temp = xlsx.parse()
                 temp['Strand'] = 0
                 temp['Unique_ID'] = temp['chr'] + temp['start'].astype(str)
                 header = ['Unique_ID', 'chr', 'start', 'stop', 'Strand', 'q value', 'mean diff (g1-g2)',
                           'no. CpGs', 'p (MWU)', 'p (2D KS)', 'mean g1', 'mean g2', 'distance', 'gene ID',
                           'gene name', 'strand']
-                outfile1 = dir_name + '/' + os.path.splitext(filename)[0] + '.tsv'
+                outfile1 = os.path.splitext(filename)[0] + '.tsv'
                 outfiles.append(outfile1)
                 outfile1 = open(outfile1, 'w+')
                 temp.to_csv(outfile1, columns = header, sep = '\t', index = False)
@@ -77,8 +76,8 @@ def submitHomer(outfiles, mode):
     annoFiles = []
     if mode == 'atacseq':
         for f in outfiles:
-            fout = f[:-4] + '.annotated.tsv'
-            fout_base_name = '.'.join(fout.split('.')[0:3])
+            fout = f[:-3] + '.annotated.tsv'
+            fout_base_name = '.'.join(fout.split('.')[0:4])
             annoFiles.append(fout_base_name)
             fout = open(fout, 'w+')
             ann_stats = f[:-4] + '.annStats.txt'
@@ -103,15 +102,15 @@ def mergeFiles(annoFiles, mode):
     if mode == 'atacseq':
         for f in annoFiles:
             baseNames = f.split('.')
-            annotated1 = pd.read_csv(str(dir_name) + '/' + str(f) + '.annotGenes' + '-' + str(baseNames[0]) + '.annotated.tsv', delimiter='\t', encoding='utf-8')
-            annotated2 = pd.read_csv(str(dir_name) + '/' + str(f) + '.annotGenes' + '-' + str(baseNames[2]) + '.annotated.tsv', delimiter='\t', encoding='utf-8')
+            annotated1 = pd.read_csv(str(f) + '.annotGenes' + '-' + str(baseNames[0]) + '.annotated.tsv', delimiter='\t', encoding='utf-8')
+            annotated2 = pd.read_csv(str(f) + '.annotGenes' + '-' + str(baseNames[2]) + '.annotated.tsv', delimiter='\t', encoding='utf-8')
             annotated1.rename(columns={annotated1.columns[0]: 'Unique_ID'}, inplace=True)
             annotated2.rename(columns={annotated2.columns[0]: 'Unique_ID'}, inplace=True)
-            original1 = pd.read_csv(dir_name + '/' + str(f) + '.annotGenes' + '-' + str(baseNames[0]) + '.tsv', delimiter = '\t', encoding = 'utf-8')
-            original2 = pd.read_csv(dir_name + '/' + str(f) + '.annotGenes' + '-' + str(baseNames[2]) + '.tsv', delimiter='\t', encoding='utf-8')
+            original1 = pd.read_csv(str(f) + '.annotGenes' + '-' + str(baseNames[0]) + '.tsv', delimiter = '\t', encoding = 'utf-8')
+            original2 = pd.read_csv(str(f) + '.annotGenes' + '-' + str(baseNames[2]) + '.tsv', delimiter='\t', encoding='utf-8')
             combined1 = pd.merge(original1, annotated1, on = 'Unique_ID')
             combined2 = pd.merge(original2, annotated2, on = 'Unique_ID')
-            fout = dir_name + '/' + str(f) + '.annotGenes' + '-' + str(baseNames[0]) + '.annotated.xlsx'
+            fout = str(f) + '.annotGenes' + '-' + str(baseNames[0]) + '.annotated.xlsx'
             writer = pd.ExcelWriter(fout, engine = 'xlsxwriter')
             fout = open(fout, 'w+')
             combined1.to_excel(writer, sheet_name = 'Genes-' + str(baseNames[0]), index=False)
@@ -119,14 +118,16 @@ def mergeFiles(annoFiles, mode):
             fout.close()
     if mode == 'metilene':
         for f in annoFiles:
-            annotated1 = pd.read_csv(str(dir_name) + '/' + str(f) + '.annotated.tsv', delimiter = '\t', encoding = 'utf-8')
+            baseNames = f.split('.')
+            sheetNames = baseNames[-2].split('/')[-1]
+            annotated1 = pd.read_csv(str(f) + '.annotated.tsv', delimiter = '\t', encoding = 'utf-8')
             annotated1.rename(columns = {annotated1.columns[0] : 'Unique_ID'}, inplace = True)
-            original1 = pd.read_csv(dir_name + '/' + str(f) + '.tsv', delimiter = '\t', encoding = 'utf-8')
+            original1 = pd.read_csv(str(f) + '.tsv', delimiter = '\t', encoding = 'utf-8')
             combined1 = pd.merge(original1, annotated1, on = 'Unique_ID')
-            fout = dir_name + '/' + str(f) + '.annotated.xlsx'
+            fout = str(f) + '.annotated.xlsx'
             writer = pd.ExcelWriter(fout, engine = 'xlsxwriter')
             fout = open(fout, 'w+')
-            combined1.to_excel(writer, sheet_name= f, index = False)
+            combined1.to_excel(writer, sheet_name= sheetNames, index = False)
             fout.close()
 
 
@@ -152,7 +153,7 @@ if __name__ == '__main__':
         prefix = ['HCG', 'GCH']
     else:
         prefix = args.file_prefix
-
+    os.chdir(args.dir_name)
     outfiles = processFiles(args.dir_name, args.mode, prefix)
     annoFiles = submitHomer(outfiles, args.mode)
     mergeFiles(annoFiles, args.mode)
