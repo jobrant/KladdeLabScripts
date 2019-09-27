@@ -25,7 +25,11 @@ from subprocess import run
 
 def processFiles(dir_name, mode, prefix):
     '''
-    function docstring
+    This function reads in the input Excel files and extracts the relevant columns and saves as a .tsv file for the HOMER annotations.
+    :param dir_name:
+    :param mode:
+    :param prefix:
+    :return:
     '''
     outfiles = []
     for filename in os.listdir():
@@ -54,7 +58,7 @@ def processFiles(dir_name, mode, prefix):
                 outfile1.close()
                 outfile2.close()
         if mode == 'metilene':
-            if filename.startswith(tuple(prefix)) and filename.endswith('.xlsx'):
+            if filename.startswith(tuple(prefix)) and filename.endswith('xlsx'):
                 xlsx = pd.ExcelFile(filename)
                 temp = xlsx.parse()
                 temp['Strand'] = 0
@@ -72,6 +76,12 @@ def processFiles(dir_name, mode, prefix):
 HOMER_COMMAND='annotatePeaks.pl {file} /apps/homer/4.10/share/homer/4.10-0/.//data/genomes/hg38/ -organism human -annStats {file2}'
 
 def submitHomer(outfiles, mode):
+    '''
+    This functions uses the output .tsv files from processFiles and submits HOMER jobs on hpc.
+    :param outfiles:
+    :param mode:
+    :return:
+    '''
     my_env = os.environ.copy()
     annoFiles = []
     if mode == 'atacseq':
@@ -99,6 +109,12 @@ def submitHomer(outfiles, mode):
     return(annoFiles)
 
 def mergeFiles(annoFiles, mode):
+    '''
+    This function repackages the annotated files into Excel spreadsheets with appropriate workbooks as needed.
+    :param annoFiles:
+    :param mode:
+    :return:
+    '''
     if mode == 'atacseq':
         for f in annoFiles:
             baseNames = f.split('.')
@@ -131,14 +147,16 @@ def mergeFiles(annoFiles, mode):
             fout.close()
 
 
-parser = argparse.ArgumentParser(description = 'To Run, call this program and give the directory containing the input '
-                                               'files and the prefix of the input file names as arguments.'
+parser = argparse.ArgumentParser(description = 'To run, call this program and give the directory containing the input '
+                                               'files and the mode. Current modes are to "atacseq" and "metilene". '
+                                               'When mode is "atacseq" use prefix of the input file names as arguments.'
                                                'This script will annotate the ATAC-Seq differential analysis '
-                                               'output files of dasa (part of the atacseq pipeline). These will be '
-                                               'in excel (.xlsx) format and have two spreadsheets per workbook. '
+                                               'output files of dasa (part of the atacseq pipeline) or the DMR files '
+                                               'output by the metilene pipeline. These will be '
+                                               'in excel (.xlsx) format and may have two spreadsheets per workbook. '
                                                ' This will format the Excel files and submit them to HOMER for '
                                                'annotation. It then combines the annotated files with the original data '
-                                               '(i.e. peak data), and outputs an excel workbook with a sheet for each '
+                                               '(i.e. peak data or methylation data), and outputs an excel workbook with a sheet for each '
                                                'contrast.')
 
 parser.add_argument('dir_name', help = 'Directory containing the input excel (.xlsx) files')
@@ -157,5 +175,4 @@ if __name__ == '__main__':
     outfiles = processFiles(args.dir_name, args.mode, prefix)
     annoFiles = submitHomer(outfiles, args.mode)
     mergeFiles(annoFiles, args.mode)
-
 
