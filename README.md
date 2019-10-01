@@ -89,8 +89,8 @@ positional arguments:
                         process the Metilene output excel files.
 
 optional arguments:
-  -h, --help            show this help message and exit
-  -f FILE_PREFIX, --file_prefix FILE_PREFIX
+  -h, --help            show this help message and exit\
+  -f FILE_PREFIX, --file_prefix FILE_PREFIX 
                         Optional filename prefix. Only use when mode is
                         atacseq. For example, for M-Series data, use M as the
                         prefix.
