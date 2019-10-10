@@ -31,7 +31,7 @@ def processFiles(dir_name, mode, prefix):
     :param prefix:
     :return:
     '''
-    print("\nStarting annotateFiles.py\n {} mode selected\n".format(mode))
+    print("\nStarting annotateFiles.py\n\n{} mode selected\n".format(mode))
     outfiles = []
     for filename in os.listdir():
         if mode == 'atacseq':
@@ -78,15 +78,20 @@ def processFiles(dir_name, mode, prefix):
                 print("Reformatting complete\n")
     return(outfiles)
 
-HOMER_COMMAND='annotatePeaks.pl {file} /apps/homer/4.10/share/homer/4.10-0/.//data/genomes/hg38/ -organism human -annStats {file2}'
-
-def submitHomer(outfiles, mode):
+def submitHomer(outfiles, mode, genome):
     '''
     This functions uses the output .tsv files from processFiles and submits HOMER jobs on hpc.
     :param outfiles:
     :param mode:
+    :param genome:
     :return:
     '''
+    if genome == 'hg38':
+        HOMER_COMMAND='annotatePeaks.pl {file} /apps/homer/4.10/share/homer/4.10-0/.//data/genomes/hg38/ -organism human -annStats {file2}'
+    if genome == 'mm9':
+        HOMER_COMMAND='annotatePeaks.pl {file} /apps/homer/4.10/share/homer/4.10-0/.//data/genomes/mm9/ -organism mouse -annStats {file2}'
+    if genome == 'mm10':
+        HOMER_COMMAND='annotatePeaks.pl {file} /apps/homer/4.10/share/homer/4.10-0/.//data/genomes/mm10/ -organism mouse -annStats {file2}'
     my_env = os.environ.copy()
     annoFiles = []
     if mode == 'atacseq':
@@ -97,7 +102,7 @@ def submitHomer(outfiles, mode):
             fout = open(fout, 'w+')
             ann_stats = f[:-4] + '.annStats.txt'
             ann_stats_out = open(ann_stats, 'w+')
-            print("HOMER annotation of {} starting...\n".format(f))
+            print("HOMER annotation of {} using {} starting...\n".format(f, genome))
             run(HOMER_COMMAND.format(file = f, file2 = ann_stats), shell = True, stdout = fout, stderr = ann_stats_out, env = my_env)
             fout.close()
             ann_stats_out.close()
@@ -108,7 +113,7 @@ def submitHomer(outfiles, mode):
             fout = open(fout, 'w+')
             ann_stats = f[:-4] + '.annStats.txt'
             ann_stats_out = open(ann_stats, 'w+')
-            print("HOMER annotation of {} starting...\n".format(f))
+            print("HOMER annotation of {} using {} starting...\n".format(f, genome))
             run(HOMER_COMMAND.format(file = f, file2 = ann_stats), shell = True, stdout = fout, stderr = ann_stats_out, env = my_env)
             fout.close()
             ann_stats_out.close()
@@ -178,6 +183,7 @@ parser.add_argument('mode', help = 'Mode to run annotation in. Use atacseq to pr
                                    'exel files. Use metilene to process the Metilene output excel files.')
 parser.add_argument('-f', '--file_prefix', help = 'Optional filename prefix. Only use when mode is atacseq. For example, '
                                                   'for M-Series data, use M as the prefix. ')
+parser.add_argument('-g', '--genome', help = 'Genome to be used by HOMER for the annotation. Choices are hg38, mm9 or mm10')
 
 if __name__ == '__main__':
     args = parser.parse_args()
@@ -187,6 +193,6 @@ if __name__ == '__main__':
         prefix = args.file_prefix
     os.chdir(args.dir_name)
     outfiles = processFiles(args.dir_name, args.mode, prefix)
-    annoFiles = submitHomer(outfiles, args.mode)
+    annoFiles = submitHomer(outfiles, args.mode, args.genome)
     mergeFiles(annoFiles, args.mode)
 
