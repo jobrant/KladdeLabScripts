@@ -76,6 +76,9 @@ optional arguments:
   -h, --help  show this help message and exit
 
 #### annotateFiles.py
+HiPerGator uses please do the following first (load order is important):
+ml homer/4.10 python3
+
 usage: annotateFiles.py [-h] [-f FILE_PREFIX] [-g GENOME] dir_name mode
 
 To run, call this program and give the directory containing the input files and the mode. Current modes are to "atacseq" and "metilene". When mode is "atacseq" use prefix of the input file names as arguments.This script will annotate the ATAC-Seq differential analysis output files of dasa (part of the atacseq pipeline) or the DMR files output by the metilene pipeline. These will be in excel (.xlsx) format and may have two spreadsheets per workbook. This will format the Excel files and submit them to HOMER for annotation. It then combines the annotated files with the original data (i.e. peak data or methylation data), and outputs an excel workbook with a sheet for each contrast.
