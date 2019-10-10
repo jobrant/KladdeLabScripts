@@ -39,7 +39,7 @@ def read_fasta(fname):
 
 def filter_seqs(filename, perc_len):
     '''
-    This function determines the lenght of the reference sequence and filters out alignments that don't meet user supplied parameters.
+    This function determines the length of the reference sequence and filters out alignments that don't meet user supplied parameters.
     :param filename:
     :param perc_len:
     :return:
@@ -78,7 +78,7 @@ parser = argparse.ArgumentParser(description = "Run filter_fasta.py -h for help.
                                                "This will read an alignment fasta, determine the reference length, "
                                                "and the max length of the alignments. This will then write out a new "
                                                "alignment fasta of those aligned reads that meet user defined length "
-                                               "paramters. Command line argument 1 is the fasta file, argument 2 is "
+                                               "parameters. Command line argument 1 is the fasta file, argument 2 is "
                                                "percentage of max aligned read length. So 90 would mean each read must "
                                                "be at least 90% the length of the max aligned read length. By default, "
                                                "the output fasta file will be named like the input file, but ending "
