@@ -83,7 +83,7 @@ def get_lengths(dir_name, mode):
         Reference Length =\t{}
         Max Alignment Length =\t{}
         Min Alignment Length =\t{}
-        Differene =\t{}
+        Difference =\t{}
 
         """.format(filename, ref_length, max(alignment_length), min(alignment_length), diff))
 
