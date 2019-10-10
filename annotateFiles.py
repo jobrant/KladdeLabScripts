@@ -7,6 +7,9 @@ Created on Mon July 31 2019
 @author: jobrant
 '''
 
+# If running on HiPerGator, please add homer/4.10 then python3 (in that order)
+# e.g. ml homer/4.10 python3
+
 #from __future__ import print_function
 #import subprocess
 import sys
