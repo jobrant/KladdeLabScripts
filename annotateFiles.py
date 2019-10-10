@@ -39,6 +39,7 @@ def processFiles(dir_name, mode, prefix):
                 sheet_names = xlsx.sheet_names
                 temp1 = xlsx.parse(sheet_names[0])
                 temp2 = xlsx.parse(sheet_names[1])
+                print("Converting sheets {} and {} of file {} to tsv format".format(sheet_names[0], sheet_names[1], filename))
                 temp1['Strand'] = 0
                 temp2['Strand'] = 0
                 #temp1['Unique_ID'] = temp1[['Chrom', 'Start']].apply(lambda x: '.'.join(x), axis = 1)
@@ -57,8 +58,10 @@ def processFiles(dir_name, mode, prefix):
                 temp2.to_csv(outfile2, columns = header, sep = '\t', index = False)
                 outfile1.close()
                 outfile2.close()
+                print("Reformatting complete")
         if mode == 'metilene':
             if filename.startswith(tuple(prefix)) and filename.endswith('xlsx'):
+                print("Converting file {} to tsv format".format(filename))
                 xlsx = pd.ExcelFile(filename)
                 temp = xlsx.parse()
                 temp['Strand'] = 0
@@ -71,6 +74,7 @@ def processFiles(dir_name, mode, prefix):
                 outfile1 = open(outfile1, 'w+')
                 temp.to_csv(outfile1, columns = header, sep = '\t', index = False)
                 outfile1.close()
+                print("Reformatting complete")
     return(outfiles)
 
 HOMER_COMMAND='annotatePeaks.pl {file} /apps/homer/4.10/share/homer/4.10-0/.//data/genomes/hg38/ -organism human -annStats {file2}'
@@ -93,6 +97,7 @@ def submitHomer(outfiles, mode):
             ann_stats = f[:-4] + '.annStats.txt'
             ann_stats_out = open(ann_stats, 'w+')
             run(HOMER_COMMAND.format(file = f, file2 = ann_stats), shell = True, stdout = fout, stderr = ann_stats_out, env = my_env)
+            print("HOMER annotation of {} started".format(f))
             fout.close()
             ann_stats_out.close()
     if mode == 'metilene':
@@ -103,6 +108,7 @@ def submitHomer(outfiles, mode):
             ann_stats = f[:-4] + '.annStats.txt'
             ann_stats_out = open(ann_stats, 'w+')
             run(HOMER_COMMAND.format(file = f, file2 = ann_stats), shell = True, stdout = fout, stderr = ann_stats_out, env = my_env)
+            print("HOMER annotation of {} started".format(f))
             fout.close()
             ann_stats_out.close()
     annoFiles = set(annoFiles)
@@ -117,6 +123,7 @@ def mergeFiles(annoFiles, mode):
     '''
     if mode == 'atacseq':
         for f in annoFiles:
+            print("Annotation of {} complete".format(f))
             baseNames = f.split('.')
             annotated1 = pd.read_csv(str(f) + '.annotGenes' + '-' + str(baseNames[0]) + '.annotated.tsv', delimiter='\t', encoding='utf-8')
             annotated2 = pd.read_csv(str(f) + '.annotGenes' + '-' + str(baseNames[2]) + '.annotated.tsv', delimiter='\t', encoding='utf-8')
@@ -126,11 +133,13 @@ def mergeFiles(annoFiles, mode):
             original2 = pd.read_csv(str(f) + '.annotGenes' + '-' + str(baseNames[2]) + '.tsv', delimiter='\t', encoding='utf-8')
             combined1 = pd.merge(original1, annotated1, on = 'Unique_ID')
             combined2 = pd.merge(original2, annotated2, on = 'Unique_ID')
+            print("Merging of {} and {} complete".foramt(annotated1, annotated2))
             fout = str(f) + '.annotGenes' + '-' + str(baseNames[0]) + '.annotated.xlsx'
             writer = pd.ExcelWriter(fout, engine = 'xlsxwriter')
             fout = open(fout, 'w+')
             combined1.to_excel(writer, sheet_name = 'Genes-' + str(baseNames[0]), index=False)
             combined2.to_excel(writer, sheet_name='Genes-' + str(baseNames[2]), index=False)
+            print("Excel file {} created and saved".format(fout))
             fout.close()
     if mode == 'metilene':
         for f in annoFiles:
@@ -144,6 +153,7 @@ def mergeFiles(annoFiles, mode):
             writer = pd.ExcelWriter(fout, engine = 'xlsxwriter')
             fout = open(fout, 'w+')
             combined1.to_excel(writer, sheet_name= sheetNames, index = False)
+            print("Excel file {} created and saved".format(fout))
             fout.close()
 
 
