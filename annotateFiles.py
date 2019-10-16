@@ -48,8 +48,8 @@ def processFiles(dir_name, mode, prefix):
                 temp2['Strand'] = 0
                 #temp1['Unique_ID'] = temp1[['Chrom', 'Start']].apply(lambda x: '.'.join(x), axis = 1)
                 #temp2['Unique_ID'] = temp2[['Chrom', 'Start']].apply(lambda x: '.'.join(x), axis = 1)
-                temp1['Unique_ID'] = temp1['Chrom'] + '.' + temp1['Start'].astype(str)
-                temp2['Unique_ID'] = temp2['Chrom'] + '.' + temp2['Start'].astype(str)
+                temp1['Unique_ID'] = temp1['Chrom'].astype(str) + '.' + temp1['Start'].astype(str)
+                temp2['Unique_ID'] = temp2['Chrom'].astype(str) + '.' + temp2['Start'].astype(str)
                 header = ['Unique_ID', 'Chrom', 'Start', 'End', 'Strand', 'Gene', 'ID', 'Accession', 'Class', 'ExNum',
                           'log2(FC)']
                 outfile1 = os.path.splitext(filename)[0] + sheet_names[0] + '.tsv'
@@ -69,7 +69,7 @@ def processFiles(dir_name, mode, prefix):
                 xlsx = pd.ExcelFile(filename)
                 temp = xlsx.parse()
                 temp['Strand'] = 0
-                temp['Unique_ID'] = temp['chr'] + temp['start'].astype(str)
+                temp['Unique_ID'] = temp['chr'].astype(str) + '.' + temp['start'].astype(str)
                 header = ['Unique_ID', 'chr', 'start', 'stop', 'Strand', 'q value', 'mean diff (g1-g2)',
                           'no. CpGs', 'p (MWU)', 'p (2D KS)', 'mean g1', 'mean g2', 'distance', 'gene ID',
                           'gene name', 'strand']
