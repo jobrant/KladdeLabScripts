@@ -69,7 +69,7 @@ def processFiles(dir_name, mode, prefix):
                 xlsx = pd.ExcelFile(filename)
                 temp = xlsx.parse()
                 temp['Strand'] = 0
-                temp['Unique_ID'] = temp['chr'].astype(str) + temp['start'].astype(str)
+                temp['Unique_ID'] = temp['chr'].astype(str) + '.' + temp['start'].astype(str)
                 header = ['Unique_ID', 'chr', 'start', 'stop', 'Strand', 'q value', 'mean diff (g1-g2)',
                           'no. CpGs', 'p (MWU)', 'p (2D KS)', 'mean g1', 'mean g2', 'distance', 'gene ID',
                           'gene name', 'strand']
