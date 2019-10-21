@@ -2,6 +2,8 @@
 # -*- coding: utf-8 -*-
 
 """
+Deprecated; please use get_lengths.py
+
 Created on Wed Jul 10 13:06:34 2019
 
 @author: jasonbrant
