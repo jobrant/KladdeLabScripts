@@ -26,7 +26,7 @@ from subprocess import run
 #     print('Python version 2 detected')
 #     run = subprocess.call
 
-def processFiles(dir_name, mode, prefix):
+def processFiles(dir_name, mode, prefixes):
     '''
     This function reads in the input Excel files and extracts the relevant columns and saves as a .tsv file for the HOMER annotations.
     :param dir_name:
@@ -38,7 +38,7 @@ def processFiles(dir_name, mode, prefix):
     outfiles = []
     for filename in os.listdir():
         if mode == 'atacseq':
-            if filename.startswith(prefix) and filename.endswith('xlsx'):
+            if filename.startswith(tuple(prefixes)) and filename.endswith('xlsx'):
                 xlsx = pd.ExcelFile(filename)
                 sheet_names = xlsx.sheet_names
                 temp1 = xlsx.parse(sheet_names[0])
@@ -64,7 +64,7 @@ def processFiles(dir_name, mode, prefix):
                 outfile2.close()
                 print("Reformatting complete\n")
         if mode == 'metilene':
-            if filename.startswith(tuple(prefix)) and filename.endswith('xlsx'):
+            if filename.startswith(tuple(prefixes)) and filename.endswith('xlsx'):
                 print("Converting file {} to tsv format...\n".format(filename))
                 xlsx = pd.ExcelFile(filename)
                 temp = xlsx.parse()
@@ -79,6 +79,7 @@ def processFiles(dir_name, mode, prefix):
                 temp.to_csv(outfile1, columns = header, sep = '\t', index = False)
                 outfile1.close()
                 print("Reformatting complete\n")
+    print(f"Calling HOMER on these files: {outfiles}")
     return(outfiles)
 
 def submitHomer(outfiles, mode, genome):
@@ -185,7 +186,7 @@ parser.add_argument('dir_name', help = 'Directory containing the input excel (.x
 parser.add_argument('mode', help = 'Mode to run annotation in. Use atacseq to process the atacseq (dasa) output '
                                    'exel files. Use metilene to process the Metilene output excel files.')
 parser.add_argument('-f', '--file_prefix', help = 'Optional filename prefix. Only use when mode is atacseq. For example, '
-                                                  'for M-Series data, use M as the prefix. ')
+                                                  'for M-Series data, use M as the prefix. ', nargs = "+")
 parser.add_argument('-g', '--genome', help = 'Genome to be used by HOMER for the annotation. Choices are hg38, mm9 or mm10')
 
 if __name__ == '__main__':
