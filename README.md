@@ -1,5 +1,5 @@
 ### Kladde Lab Scripts
-A collection of scripts for processing NGS epigentic data.
+A collection of scripts for processing NGS epigentic data processed by reAminator.
 
 rename_header.py  -- Renames the header of alignment fasta files from bsDraw.py output.\
 get_lengths.py  -- Script to get the lengths of ccs reads, fasta reads, alignments and references.\
