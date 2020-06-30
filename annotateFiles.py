@@ -98,7 +98,7 @@ def submitHomer(outfiles, mode, genome):
     annoFiles = []
     if mode == 'atacseq':
         for f in outfiles:
-            fout = f[:-3] + '.annotated.tsv'
+            fout = f[:-4] + '.annotated.tsv'
             fout_base_name = '.'.join(fout.split('.')[0:4])
             annoFiles.append(fout_base_name)
             fout = open(fout, 'w+')
@@ -133,15 +133,15 @@ def mergeFiles(annoFiles, mode):
         for f in annoFiles:
             print("Annotation of {} complete\n".format(f))
             baseNames = f.split('.')
-            annotated1 = pd.read_csv(str(f) + '.annotGenes' + '-' + str(baseNames[0]) + '.annotated.tsv', delimiter='\t', encoding='utf-8')
-            annotated2 = pd.read_csv(str(f) + '.annotGenes' + '-' + str(baseNames[2]) + '.annotated.tsv', delimiter='\t', encoding='utf-8')
+            annotated1 = pd.read_csv(str('.'.join(baseNames[0:3])) + '.annotGenes' + '-' + str(baseNames[0]) + '.annotated.tsv', delimiter='\t', encoding='utf-8')
+            annotated2 = pd.read_csv(str('.'.join(baseNames[0:3])) + '.annotGenes' + '-' + str(baseNames[2]) + '.annotated.tsv', delimiter='\t', encoding='utf-8')
             annotated1.rename(columns={annotated1.columns[0]: 'Unique_ID'}, inplace=True)
             annotated2.rename(columns={annotated2.columns[0]: 'Unique_ID'}, inplace=True)
             original1 = pd.read_csv(str(f) + '.annotGenes' + '-' + str(baseNames[0]) + '.tsv', delimiter = '\t', encoding = 'utf-8')
             original2 = pd.read_csv(str(f) + '.annotGenes' + '-' + str(baseNames[2]) + '.tsv', delimiter='\t', encoding='utf-8')
             combined1 = pd.merge(original1, annotated1, on = 'Unique_ID')
             combined2 = pd.merge(original2, annotated2, on = 'Unique_ID')
-            print("Merging of {} and {} complete\n".foramt(annotated1, annotated2))
+            print("Merging of {} and {} complete\n".format(annotated1, annotated2))
             fout = str(f) + '.annotGenes' + '-' + str(baseNames[0]) + '.annotated.xlsx'
             fout2 = fout
             writer = pd.ExcelWriter(fout, engine = 'xlsxwriter')
