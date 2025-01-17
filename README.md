@@ -38,7 +38,7 @@ optional arguments:
  #### filter_fasta.py
  usage: filter_fasta.py [-h] [-o OUTPUT] filename percent
 
-Filter an alignment fasta (produced by bsDraw) by percentage of max aligned read length
+Filter an alignment fasta (produced by bsDraw) by percentage of reference length
 
 positional arguments:
   filename              Input fasta file to be filtered
