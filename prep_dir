@@ -1,0 +1,83 @@
+#!/bin/bash
+
+DIR=$1
+
+# Function to display the help message
+show_help() {
+    echo "Usage: $(basename "$0") DIRECTORY"
+    echo
+    echo "This script is used to preprocess the out directories of the kladdegator script to prepare for making the correlation plots. It generates the necessary directory structure and moves filess accordingly."
+    echo
+    echo "Arguments:"
+    echo "  DIRECTORY   This directory should be the output directory of the kladdegator script."
+    echo
+    echo "Example:"
+    echo "  $(basename "$0") /path/to/directory"
+}
+
+# Check if -h or --help is provided
+if [[ $1 == "-h" || $1 == "--help" ]]; then
+    show_help
+    exit 0
+fi
+
+# Check if the correct number of arguments are provided
+if [[ $# -ne 1 ]]; then
+    echo "Error: Two arguments required."
+    show_help
+    exit 1
+fi
+
+# check if directories exist. If not create them.
+directories=($DIR/FA_FILES $DIR/FREQS_FILES $DIR/FILTERED_FA_FILES $DIR/FILTERED_FREQS_FILES $DIR/CSV_FILES $DIR/PNG_FILES)
+
+for directory in "${directories[@]}"; do
+  if [ ! -d "$directory" ]; then
+    mkdir "$directory"
+  fi
+done
+
+# Move all the aligned fa files to the FA_FILES dir.
+for file in $DIR/a-nd*fa; do
+
+  # Check if the file is a regular file
+  if [ -f $file ]; then
+
+    # Move the file to the filtered freqs directory
+    mv $file ${DIR}/FA_FILES/
+
+  fi
+
+done
+
+# Move all the freqs files to FREQS_FILES
+for file in $DIR/*freqs.csv; do
+
+  # Check if the file is a regular file
+  if [ -f $file ]; then
+
+    # Move the file to the filtered freqs directory
+    mv $file ${DIR}/FREQS_FILES/
+
+  fi
+
+done
+
+# Move all the csv map files to CSV_FILES
+for file in *.csv; do
+  [[ "$file" != *freqs.csv ]] && [ -f "$file" ] && mv "$file" "${DIR}/CSV_FILES"
+done
+
+
+# Move all the png images files to PNG_FILES
+for file in $DIR/*.png; do
+
+  # Check if the file is a regular file
+  if [ -f $file ]; then
+
+    # Move the file to the filtered freqs directory
+    mv $file ${DIR}/PNG_FILES/
+
+  fi
+
+done
